@@ -1,0 +1,22 @@
+version: "2"
+services:
+  web:
+    build: .
+    command: node_modules/nodemon/bin/nodemon.js --legacy-watch bin/www
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/home/app/yak-yik
+      - /home/app/yak-yik/node_modules
+    links:
+      - mongo
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes_from:
+      - mongodata
+  mongodata:
+    image: tianon/true
+    volumes:
+      - /data/db:/data/db
