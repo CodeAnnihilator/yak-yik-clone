@@ -1,7 +1,8 @@
 FROM node:argon
 
 RUN useradd --user-group --create-home --shell /bin/false app &&\
-  npm install --global npm
+  npm install --global npm &&\
+  npm install --global webpack
 
 ENV HOME=/home/app
 
