@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import Comment from '../presentation/Comment'
-import superagent from 'superagent'
+import { CreateComment, Comment } from '../presentation'
+import { APIManager } from '../../utils'
 
 import styles from './styles'
 
@@ -8,49 +8,24 @@ export default class Comments extends Component {
   constructor() {
     super()
     this.state = {
-      list: [],
-      comment: {
-        username: '',
-        body: '',
-        timestamp: ''
-      }
+      list: []
     }
   }
 
   componentDidMount() {
-    superagent
-      .get('/api/comment')
-      .query(null)
-      .set('Accept', 'application/json')
-      .end((err, response) => {
-        if (err) return alert('ERROR:' + err)
-        let results = response.body.results
-        this.setState({ list: results })
-      })
+    APIManager.get('/api/comment', null, (err, response) => {
+      if (err) return alert('ERROR:' + err.message)
+      this.setState({ list: response.results })
+    })
   }
 
-  submitComment = () => {
-    let updatedList = Object.assign([], this.state.list)
-    updatedList.push(this.state.comment)
-    this.setState({ list: updatedList })
-  }
-
-  updateUsername = e => {
-    let updatedComment = Object.assign({}, this.state.comment)
-    updatedComment['username'] = e.target.value
-    this.setState({ comment: updatedComment })
-  }
-
-  updateBody = e => {
-    let updatedComment = Object.assign({}, this.state.comment)
-    updatedComment['body'] = e.target.value
-    this.setState({ comment: updatedComment })
-  }
-
-  updateTimestamp = e => {
-    let updatedComment = Object.assign({}, this.state.comment)
-    updatedComment['timestamp'] = e.target.value
-    this.setState({ comment: updatedComment })
+  submitComment = comment => {
+    APIManager.post('/api/comment', comment, (err, response) => {
+      if (err) return alert('ERROR:' + err.message)
+      let updatedList = Object.assign([], this.state.list)
+      updatedList.push(response.result)
+      this.setState({ list: updatedList })
+    })
   }
 
   render() {
@@ -65,10 +40,7 @@ export default class Comments extends Component {
               )
             }
           </ul>
-          <input className='form-control' type='text' placeholder='Username' onChange={this.updateUsername}/><br />
-          <input className='form-control' type='text' placeholder='Comment' onChange={this.updateBody}/><br />
-          <input className='form-control' type='text' placeholder='Timestamp' onChange={this.updateTimestamp}/><br />
-          <button className='btn btn-info' onClick={this.submitComment}>Submit Comment</button>
+          <CreateComment onCreate={this.submitComment}/>
         </div>
       </div>
     )
